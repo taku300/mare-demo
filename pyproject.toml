@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Takuma Fukuda <takuma.fukuda@mare-key.ai>"]
 readme = "README.md"
-packages = [{include = "configs"}]
+packages = [{include = "configs"}, {include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -27,6 +27,7 @@ tiktoken = "^0.7.0"
 yfiles-jupyter-graphs = "^1.7.2"
 streamlit = "^1.36.0"
 python-docx = "^1.1.2"
+requests = "^2.32.3"
 
 
 [build-system]

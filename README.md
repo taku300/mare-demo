@@ -2,10 +2,13 @@
 
 ## デモ一覧
 | id | デモ概要          | issue |  streamlit |
-|----|------------------|-------|-------|
-| 1  | GraphRAG     |   https://github.com/taku300/mare-demo/issues/1    |×|
-| 2  | Insight AI     |   https://github.com/taku300/mare-demo/issues/2    |○|
-
+|----|-------------------|-------------------------------------------|------------|
+| 1  | GraphRAG          | https://github.com/taku300/mare-demo/issues/1 | ×          |
+| 2  | Insight AI        | https://github.com/taku300/mare-demo/issues/2 | ○          |
+| 3  | Hearing AI        | https://github.com/taku300/mare-demo/issues/3 | 工事中      |
+| 4  | CoreSenseAI       | https://github.com/taku300/mare-demo/issues/4 | 工事中      |
+| 5  | Personalized AI   | https://github.com/taku300/mare-demo/issues/5 | 工事中      |
+| 6  | Multimodal AI     | https://github.com/taku300/mare-demo/issues/6 | ○          |
 
 ## 環境構築
 1. localでPythonが動く環境を用意

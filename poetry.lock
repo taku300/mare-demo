@@ -748,20 +748,6 @@ files = [
 ]
 
 [[package]]
-name = "docx"
-version = "0.2.4"
-description = "The docx module creates, reads and writes Microsoft Office Word 2007 docx files"
-optional = false
-python-versions = "*"
-files = [
-    {file = "docx-0.2.4.tar.gz", hash = "sha256:9d7595eac6e86cda0b7136a2995318d039c1f3eaa368a3300805abbbe5dc8877"},
-]
-
-[package.dependencies]
-lxml = "*"
-Pillow = ">=2.0"
-
-[[package]]
 name = "executing"
 version = "2.0.1"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -853,32 +839,6 @@ type1 = ["xattr"]
 ufo = ["fs (>=2.2.0,<3)"]
 unicode = ["unicodedata2 (>=15.1.0)"]
 woff = ["brotli (>=1.0.1)", "brotlicffi (>=0.8.0)", "zopfli (>=0.1.4)"]
-
-[[package]]
-name = "fpdf"
-version = "1.7.2"
-description = "Simple PDF generation for Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "fpdf-1.7.2.tar.gz", hash = "sha256:125840783289e7d12552b1e86ab692c37322e7a65b96a99e0ea86cca041b6779"},
-]
-
-[[package]]
-name = "fpdf2"
-version = "2.7.9"
-description = "Simple & fast PDF generation for Python"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "fpdf2-2.7.9-py2.py3-none-any.whl", hash = "sha256:1f176aea4a1cc0fa1da5c799fce8f8bcfe2e936b9d2298a75514c9efc7528bfa"},
-    {file = "fpdf2-2.7.9.tar.gz", hash = "sha256:f364c0d816a5e364eeeda9761cf5c961bae8c946f080cf87fed7f38ab773b318"},
-]
-
-[package.dependencies]
-defusedxml = "*"
-fonttools = ">=4.34.0"
-Pillow = ">=6.2.2,<9.2.dev0 || >=9.3.dev0"
 
 [[package]]
 name = "fqdn"
@@ -4616,4 +4576,4 @@ ipywidgets = ">=8.0.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "98b667a76ed460eccdec2fd19e21aa02f292cb13922806303cc1a23e490b9cb7"
+content-hash = "0297a5233d70f33e0f8cd2526f7f0f26c14fed4383ffbdeb8640ea31aa08feb7"
