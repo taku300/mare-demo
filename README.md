@@ -18,4 +18,4 @@
 5. `poetory shell`でそう環境の立ち上げ
 6. `streamlit run src/app.py`でStreamlitを立ち上げ
 
-※ Jupitorを立ち上げたい時は5まで実行したのちに`poetry run jupyter notebook`
+※ Jupyterを立ち上げたい時は5まで実行したのちに`poetry run jupyter notebook`
