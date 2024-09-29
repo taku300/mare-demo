@@ -29,7 +29,7 @@ system_prompt = """
 # 振る舞い
 - 丁寧な振る舞いをする
 - 質問は端的に返す。
-- 十分深掘りが完了と判断したらしたら「ご回答ありがとうございました。」と返答する。
+- 十分深掘りが完了と判断したら「ご回答ありがとうございました。」と返答する。
 """
 
 # インサイト分析プロンプトを定義
@@ -61,21 +61,6 @@ new_product_idea_prompt = """
 # 新商品のアイデア
 """
 
-def generate_response(messages):
-    response = llm(messages)
-    return response.content
-
-def analyze_insights(conversation):
-    prompt = insight_analysis_prompt.format(conversation=conversation)
-    analysis_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
-    return analysis_response.content
-
-def generate_new_product_ideas(conversation, insights):
-    prompt = new_product_idea_prompt.format(conversation=conversation, insights=insights)
-    idea_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
-    return idea_response.content
-
-# 形態素解析を行い、名詞と動詞の原型を抽出する関数
 # 形態素解析を行い、名詞、動詞、形容詞、形容動詞、副詞の原型を抽出する関数
 def extract_keywords(text):
     mecab = MeCab.Tagger("-Ochasen")
@@ -88,14 +73,12 @@ def extract_keywords(text):
             break
         parts = line.split("\t")
         if len(parts) > 3:
-            word = parts[0]
             base = parts[2]  # 基本形（原型）を取得
             pos = parts[3]   # 品詞情報を取得
             # 名詞、動詞、形容詞、形容動詞、副詞のみを対象にする
             if "名詞" in pos or "動詞" in pos or "形容詞" in pos or "形容動詞" in pos or "副詞" in pos:
                 keywords.append(base)  # 基本形を使用
     return keywords
-
 
 # WordCloudを生成する関数
 def generate_wordcloud(text):
@@ -119,6 +102,21 @@ def generate_wordcloud(text):
 
     return image_io
 
+def analyze_insights(conversation):
+    prompt = insight_analysis_prompt.format(conversation=conversation)
+    analysis_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
+    return analysis_response.content
+
+def generate_new_product_ideas(conversation, insights):
+    prompt = new_product_idea_prompt.format(conversation=conversation, insights=insights)
+    idea_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
+    return idea_response.content
+
+# ストリーミング再生に対応した応答生成関数
+def generate_response(messages):
+    for chunk in llm.stream(messages):
+        yield chunk.content  # ストリーミング応答を逐次的に返す
+
 def save_conversation_to_word(messages):
     doc = Document()
     doc.add_heading('インサイト分析レポート', 0)
@@ -134,8 +132,6 @@ def save_conversation_to_word(messages):
         elif message["role"] == "assistant":
             doc.add_heading('Assistant:', level=2)
             doc.add_paragraph(message["content"])
-        else:
-            continue  # システムメッセージはスキップ
 
     # 顧客インサイトを作成
     insights = analyze_insights(conversation)
@@ -196,11 +192,14 @@ def show():
             HumanMessage(content=msg["content"]) for msg in st.session_state.messages if msg["role"] != "system"
         ]
 
-        response = generate_response(messages)
-
+        # ストリーミング応答をリアルタイムで表示
         with st.chat_message("assistant"):
-            st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            response_stream = generate_response(messages)
+            # Streamlit の write_stream を使ってストリーミング再生
+            full_response = st.write_stream(response_stream)
+
+        # 最終応答をセッションに保存
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
     # Wordに保存するボタンを表示
     if st.button("レポートを作成"):

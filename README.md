@@ -13,9 +13,9 @@
 ## 環境構築
 1. localでPythonが動く環境を用意
 2. .envファイルを作成（.env_exampleを参照）
-3. `pip install poetory`を依存関係を整理するためのpoetroyをインストール
-4. `poetory insatll` でライブラリをインストール
-5. `poetory shell`でそう環境の立ち上げ
+3. `pip install poetry`を依存関係を整理するためのpoetryをインストール
+4. `poetry install` でライブラリをインストール
+5. `poetry shell`でそう環境の立ち上げ
 6. `streamlit run src/app.py`でStreamlitを立ち上げ
 
 ※ Jupyterを立ち上げたい時は5まで実行したのちに`poetry run jupyter notebook`
