@@ -12,7 +12,7 @@ from io import BytesIO
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from PIL import Image
-import MeCab  # MeCabを使用して日本語形態素解析を行う
+# import MeCab  # MeCabを使用して日本語形態素解析を行う
 from collections import Counter
 from configs import const
 
@@ -67,45 +67,45 @@ new_product_idea_prompt = """
 """
 
 # 形態素解析を行い、名詞、動詞、形容詞、形容動詞、副詞の原型を抽出する関数
-def extract_keywords(text):
-    mecab = MeCab.Tagger("-Ochasen")
-    parsed = mecab.parse(text)
+# def extract_keywords(text):
+#     mecab = MeCab.Tagger("-Ochasen")
+#     parsed = mecab.parse(text)
 
-    # 名詞、動詞、形容詞、形容動詞、副詞を抽出し、基本形（原型）を取得する
-    keywords = []
-    for line in parsed.splitlines():
-        if line == 'EOS':
-            break
-        parts = line.split("\t")
-        if len(parts) > 3:
-            base = parts[2]  # 基本形（原型）を取得
-            pos = parts[3]   # 品詞情報を取得
-            # 名詞、動詞、形容詞、形容動詞、副詞のみを対象にする
-            if "名詞" in pos or "動詞" in pos or "形容詞" in pos or "形容動詞" in pos or "副詞" in pos:
-                keywords.append(base)  # 基本形を使用
-    return keywords
+#     # 名詞、動詞、形容詞、形容動詞、副詞を抽出し、基本形（原型）を取得する
+#     keywords = []
+#     for line in parsed.splitlines():
+#         if line == 'EOS':
+#             break
+#         parts = line.split("\t")
+#         if len(parts) > 3:
+#             base = parts[2]  # 基本形（原型）を取得
+#             pos = parts[3]   # 品詞情報を取得
+#             # 名詞、動詞、形容詞、形容動詞、副詞のみを対象にする
+#             if "名詞" in pos or "動詞" in pos or "形容詞" in pos or "形容動詞" in pos or "副詞" in pos:
+#                 keywords.append(base)  # 基本形を使用
+#     return keywords
 
 # WordCloudを生成する関数
-def generate_wordcloud(text):
-    # 形態素解析で単語を抽出
-    words = extract_keywords(text)
+# def generate_wordcloud(text):
+#     # 形態素解析で単語を抽出
+#     words = extract_keywords(text)
 
-    # 不要な単語を除外
-    stopwords = {'user', 'assistant', 'です', 'ます', 'する', 'ある'}  # 必要に応じて増やす
-    words = [word for word in words if word not in stopwords]
+#     # 不要な単語を除外
+#     stopwords = {'user', 'assistant', 'です', 'ます', 'する', 'ある'}  # 必要に応じて増やす
+#     words = [word for word in words if word not in stopwords]
 
-    # 単語の出現頻度をカウント
-    word_freq = Counter(words)
+#     # 単語の出現頻度をカウント
+#     word_freq = Counter(words)
 
-    # WordCloudを生成
-    wordcloud = WordCloud(width=400, height=300, background_color='white', font_path=font_path).generate_from_frequencies(word_freq)
+#     # WordCloudを生成
+#     wordcloud = WordCloud(width=400, height=300, background_color='white', font_path=font_path).generate_from_frequencies(word_freq)
 
-    # WordCloud画像を保存する
-    image_io = BytesIO()
-    wordcloud.to_image().save(image_io, format='PNG')
-    image_io.seek(0)
+#     # WordCloud画像を保存する
+#     image_io = BytesIO()
+#     wordcloud.to_image().save(image_io, format='PNG')
+#     image_io.seek(0)
 
-    return image_io
+#     return image_io
 
 def analyze_insights(conversation):
     prompt = insight_analysis_prompt.format(conversation=conversation)
@@ -149,18 +149,18 @@ def save_conversation_to_word(messages):
     doc.add_paragraph(new_product_ideas)
 
     # Word Cloudの生成と追加 (Userからの回答のみを使う)
-    doc.add_heading('よく使われた単語（Word Cloud）', level=1)
+    # doc.add_heading('よく使われた単語（Word Cloud）', level=1)
 
-    # Userのメッセージのみを対象にWord Cloudを生成
-    user_conversation = "\n".join([msg["content"] for msg in messages if msg["role"] == "user"])
-    wordcloud_image = generate_wordcloud(user_conversation)
+    # # Userのメッセージのみを対象にWord Cloudを生成
+    # user_conversation = "\n".join([msg["content"] for msg in messages if msg["role"] == "user"])
+    # wordcloud_image = generate_wordcloud(user_conversation)
 
-    # Wordファイルに画像としてWordCloudを追加
-    image = Image.open(wordcloud_image)
-    image_path = '/tmp/wordcloud.png'
-    image.save(image_path)  # 一時的に画像ファイルを保存
+    # # Wordファイルに画像としてWordCloudを追加
+    # image = Image.open(wordcloud_image)
+    # image_path = '/tmp/wordcloud.png'
+    # image.save(image_path)  # 一時的に画像ファイルを保存
 
-    doc.add_picture(image_path)
+    # doc.add_picture(image_path)
 
     # メモリに保存
     byte_io = BytesIO()
