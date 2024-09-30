@@ -3,6 +3,7 @@ import os
 import os
 # 指定されたパスをPythonのパスに追加
 sys.path.append('/Users/fukudatakumima/Desktop/develop/mare-demo/')
+sys.path.append('/mount/src/mare-demo/')
 
 import streamlit as st
 from langchain.chat_models import ChatOpenAI
