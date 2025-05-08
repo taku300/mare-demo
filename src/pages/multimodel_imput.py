@@ -4,20 +4,19 @@ import os
 from openai import OpenAI
 from pydub import AudioSegment
 import math
-from dotenv import load_dotenv  # 追加
+from dotenv import load_dotenv
 
 # .envを読み込む
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-st.write(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-st.title("音声・動画ファイル文字起こしアプリ（長時間対応）")
+st.title("音声ファイル文字起こしアプリ（長時間対応）")
 
-# ファイルアップロード
-uploaded_file = st.file_uploader("音声または動画ファイルをアップロードしてください (mp3, wav, m4a, mp4, mov, avi, mkv)",
-                                 type=["mp3", "wav", "m4a", "mp4", "mov", "avi", "mkv"])
+# 音声ファイルアップロード
+uploaded_file = st.file_uploader("音声ファイルをアップロードしてください (mp3, wav, m4a)",
+                                 type=["mp3", "wav", "m4a"])
 
 if uploaded_file is not None:
     file_extension = uploaded_file.name.split(".")[-1].lower()
@@ -26,24 +25,13 @@ if uploaded_file is not None:
         tmp_file.write(uploaded_file.read())
         file_path = tmp_file.name
 
-    # 動画ファイルの場合は音声抽出
-    if file_extension in ["mp4", "mov", "avi", "mkv"]:
-        st.write("動画ファイルがアップロードされました。音声を抽出します。")
-        audio_path = file_path + ".mp3"
-        video = AudioSegment.from_file(file_path)
-        video.export(audio_path, format="mp3")
-        target_audio_path = audio_path
-    else:
-        st.write("音声ファイルがアップロードされました。")
-        target_audio_path = file_path
-
     st.write("文字起こしを開始します。少々お待ちください。")
 
     # 音声読み込み
-    audio = AudioSegment.from_file(target_audio_path)
+    audio = AudioSegment.from_file(file_path)
 
-    # 分割設定
-    chunk_length_ms = 20 * 60 * 1000  # 20分（制限より少し短くするため）
+    # 分割設定（20分単位）
+    chunk_length_ms = 20 * 60 * 1000
     total_chunks = math.ceil(len(audio) / chunk_length_ms)
 
     full_transcript = ""
@@ -81,5 +69,3 @@ if uploaded_file is not None:
 
     # 後片付け
     os.remove(file_path)
-    if file_extension in ["mp4", "mov", "avi", "mkv"]:
-        os.remove(audio_path)
