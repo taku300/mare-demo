@@ -167,3 +167,4 @@ wikipedia==1.4.0
 wordcloud==1.9.3
 yarl==1.13.1
 yfiles_jupyter_graphs==1.8.1
+python-dotenv==1.0.1

@@ -1,10 +1,5 @@
 import sys
 import os
-import os
-# 指定されたパスをPythonのパスに追加
-sys.path.append('/Users/fukudatakumima/Desktop/develop/mare-demo/')
-sys.path.append('/mount/src/mare-demo/')
-
 import streamlit as st
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
@@ -13,12 +8,15 @@ from io import BytesIO
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from PIL import Image
-# import MeCab  # MeCabを使用して日本語形態素解析を行う
+import MeCab  # MeCabを使用して日本語形態素解析を行う
 from collections import Counter
-from configs import const
+from dotenv import load_dotenv  # 追加
 
-# OpenAI APIキーを環境変数から設定
-os.environ["OPENAI_API_KEY"] = const.OPENAI_API_KEY
+# .envを読み込む
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 # ChatOpenAIのインスタンスを作成
 llm = ChatOpenAI(temperature=0, model_name="gpt-4")
@@ -27,10 +25,10 @@ llm = ChatOpenAI(temperature=0, model_name="gpt-4")
 font_path = '/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc'
 
 # システムプロンプトを定義
-system_prompt = """
+system_prompt_template = """
 # 役割
 あなたは顧客にニーズを見つけ出すスペシャリストです。
-お客様の心の中にあるインサイトを見つけ出すように質問の深掘りをしてください。
+今、顧客に「{question}」という質問を行い、その回答に基づいて深掘りを行い、顧客のインサイトを見つけ出してください。
 
 # 振る舞い
 - 丁寧な振る舞いをする
@@ -68,54 +66,54 @@ new_product_idea_prompt = """
 """
 
 # 形態素解析を行い、名詞、動詞、形容詞、形容動詞、副詞の原型を抽出する関数
-# def extract_keywords(text):
-#     mecab = MeCab.Tagger("-Ochasen")
-#     parsed = mecab.parse(text)
+def extract_keywords(text):
+    mecab = MeCab.Tagger("-Ochasen")
+    parsed = mecab.parse(text)
 
-#     # 名詞、動詞、形容詞、形容動詞、副詞を抽出し、基本形（原型）を取得する
-#     keywords = []
-#     for line in parsed.splitlines():
-#         if line == 'EOS':
-#             break
-#         parts = line.split("\t")
-#         if len(parts) > 3:
-#             base = parts[2]  # 基本形（原型）を取得
-#             pos = parts[3]   # 品詞情報を取得
-#             # 名詞、動詞、形容詞、形容動詞、副詞のみを対象にする
-#             if "名詞" in pos or "動詞" in pos or "形容詞" in pos or "形容動詞" in pos or "副詞" in pos:
-#                 keywords.append(base)  # 基本形を使用
-#     return keywords
+    # 名詞、動詞、形容詞、形容動詞、副詞を抽出し、基本形（原型）を取得する
+    keywords = []
+    for line in parsed.splitlines():
+        if line == 'EOS':
+            break
+        parts = line.split("\t")
+        if len(parts) > 3:
+            base = parts[2]  # 基本形（原型）を取得
+            pos = parts[3]   # 品詞情報を取得
+            # 名詞、動詞、形容詞、形容動詞、副詞のみを対象にする
+            if "名詞" in pos or "動詞" in pos or "形容詞" in pos:
+                keywords.append(base)  # 基本形を使用
+    return keywords
 
 # WordCloudを生成する関数
-# def generate_wordcloud(text):
-#     # 形態素解析で単語を抽出
-#     words = extract_keywords(text)
+def generate_wordcloud(text):
+    # 形態素解析で単語を抽出
+    words = extract_keywords(text)
 
-#     # 不要な単語を除外
-#     stopwords = {'user', 'assistant', 'です', 'ます', 'する', 'ある'}  # 必要に応じて増やす
-#     words = [word for word in words if word not in stopwords]
+    # 不要な単語を除外
+    stopwords = {'user', 'assistant', 'です', 'ます', 'する', 'ある'}  # 必要に応じて増やす
+    words = [word for word in words if word not in stopwords]
 
-#     # 単語の出現頻度をカウント
-#     word_freq = Counter(words)
+    # 単語の出現頻度をカウント
+    word_freq = Counter(words)
 
-#     # WordCloudを生成
-#     wordcloud = WordCloud(width=400, height=300, background_color='white', font_path=font_path).generate_from_frequencies(word_freq)
+    # WordCloudを生成
+    wordcloud = WordCloud(width=400, height=300, background_color='white', font_path=font_path).generate_from_frequencies(word_freq)
 
-#     # WordCloud画像を保存する
-#     image_io = BytesIO()
-#     wordcloud.to_image().save(image_io, format='PNG')
-#     image_io.seek(0)
+    # WordCloud画像を保存する
+    image_io = BytesIO()
+    wordcloud.to_image().save(image_io, format='PNG')
+    image_io.seek(0)
 
-#     return image_io
+    return image_io
 
 def analyze_insights(conversation):
     prompt = insight_analysis_prompt.format(conversation=conversation)
-    analysis_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
+    analysis_response = llm([SystemMessage(content=st.session_state.system_prompt), HumanMessage(content=prompt)])
     return analysis_response.content
 
 def generate_new_product_ideas(conversation, insights):
     prompt = new_product_idea_prompt.format(conversation=conversation, insights=insights)
-    idea_response = llm([SystemMessage(content=system_prompt), HumanMessage(content=prompt)])
+    idea_response = llm([SystemMessage(content=st.session_state.system_prompt), HumanMessage(content=prompt)])
     return idea_response.content
 
 # ストリーミング再生に対応した応答生成関数
@@ -150,18 +148,18 @@ def save_conversation_to_word(messages):
     doc.add_paragraph(new_product_ideas)
 
     # Word Cloudの生成と追加 (Userからの回答のみを使う)
-    # doc.add_heading('よく使われた単語（Word Cloud）', level=1)
+    doc.add_heading('よく使われた単語（Word Cloud）', level=1)
 
-    # # Userのメッセージのみを対象にWord Cloudを生成
-    # user_conversation = "\n".join([msg["content"] for msg in messages if msg["role"] == "user"])
-    # wordcloud_image = generate_wordcloud(user_conversation)
+    # Userのメッセージのみを対象にWord Cloudを生成
+    user_conversation = "\n".join([msg["content"] for msg in messages if msg["role"] == "user"])
+    wordcloud_image = generate_wordcloud(user_conversation)
 
-    # # Wordファイルに画像としてWordCloudを追加
-    # image = Image.open(wordcloud_image)
-    # image_path = '/tmp/wordcloud.png'
-    # image.save(image_path)  # 一時的に画像ファイルを保存
+    # Wordファイルに画像としてWordCloudを追加
+    image = Image.open(wordcloud_image)
+    image_path = '/tmp/wordcloud.png'
+    image.save(image_path)  # 一時的に画像ファイルを保存
 
-    # doc.add_picture(image_path)
+    doc.add_picture(image_path)
 
     # メモリに保存
     byte_io = BytesIO()
@@ -172,13 +170,19 @@ def save_conversation_to_word(messages):
 
 def show():
     st.title("アンケート分析AI")
-    st.markdown(("### 新商品のカレーの味はどうでしたか？"))
+
+    # 質問をユーザーが入力できるようにする
+    default_question = "新商品のカレーの味はどうでしたか？"
+    question = st.text_input("質問を入力してください", value=default_question)
+
+    # 質問をプロンプトに反映させる
+    st.session_state.system_prompt = system_prompt_template.format(question=question)
 
     # セッションステートにメッセージを保存
     if "messages" not in st.session_state:
         st.session_state.messages = []
-        # 初期化時にシステムプロンプトをメッセージリストに追加
-        st.session_state.messages.append({"role": "system", "content": system_prompt})
+        # 初期化時に動的なシステムプロンプトと最初の質問をメッセージリストに追加
+        st.session_state.messages.append({"role": "system", "content": st.session_state.system_prompt})
 
     # メッセージの表示（システムプロンプトは表示しない）
     for message in st.session_state.messages:
@@ -194,7 +198,7 @@ def show():
         st.session_state.messages.append({"role": "user", "content": prompt})
 
         # メッセージリストにシステムプロンプトを含める
-        messages = [SystemMessage(content=system_prompt)] + [
+        messages = [SystemMessage(content=st.session_state.system_prompt)] + [
             HumanMessage(content=msg["content"]) for msg in st.session_state.messages if msg["role"] != "system"
         ]
 
